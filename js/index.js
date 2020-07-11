@@ -8,6 +8,7 @@ function updateSubtotal(product) {
   let calculation = Number(price.innerText) * Number(quantity.value);
 
   subtotal.innerHTML = calculation;
+  return calculation;
 }
 
 function calculateAll() {
@@ -19,18 +20,14 @@ function calculateAll() {
 
   // ITERATION 2
   const products = document.querySelectorAll(".product");
+  let total = 0;
+
   products.forEach(function (product) {
-    updateSubtotal(product);
+    total += updateSubtotal(product);
   });
 
   // ITERATION 3
-  const subtotal = document.querySelectorAll(".subtotal span");
   const totalCart = document.querySelector("#total-value span");
-  let total = 0;
-
-  subtotal.forEach(function (subtotal) {
-    total += Number(subtotal.textContent);
-  });
   totalCart.textContent = total;
 }
 
@@ -40,7 +37,7 @@ function removeProduct(event) {
   const target = event.currentTarget;
   const productTable = document.querySelector("#productTable");
   console.log(target.parentElement);
-  productTable.removeChild(target.parentNode.parentNode);
+  productTable.removeChild(target.closest("tr"));
   calculateAll();
 }
 
@@ -48,15 +45,18 @@ function removeProduct(event) {
 
 function createProduct() {
   //add a new row with the new product info
+  const allProducts = document.getElementsByClassName("product");
   const newName = document.getElementById("new-product-name");
   const newPrice = document.getElementById("new-product-price");
-  const productTable = document.querySelector("#productTable");
+  const productTable = document.querySelector("#productTable"); //row-container
+
+  const newRow = document.createElement("tr");
+  newRow.className = "product";
 
   if (newName.value === "" || newPrice.value === "0") {
     throw new Error("Don't forget to give all the new product information.");
   } else {
-    productTable.innerHTML += `<tr class="product">
-    <td class="name">
+    newRow.innerHTML += `<td class="name">
       <span>${newName.value}</span>
     </td>
     <td class="price">$<span>${newPrice.value}</span></td>
@@ -66,43 +66,13 @@ function createProduct() {
     <td class="subtotal">$<span>0</span></td>
     <td class="action">
       <button class="btn btn-remove">Remove</button>
-    </td>
-  </tr>`;
+    </td>`;
   }
 
-  //when the new product row is added, clear the input fields
-  newName.value = "";
-  newPrice.value = "0";
-
-  // const newName = document.getElementById("new-product-name");
-  // const newPrice = document.getElementById("new-product-price");
-  // const productTable = document.querySelector("#productTable");
-  // let tr = document.createElement("tr");
-
-  // if (newName.value === "" || newPrice.value === "0") {
-  //   throw new Error("Don't forget to give all the new product information.");
-  // } else {
-  //   productTable.appendChild(tr);
-  // }
-
-  // productTable.lastChild.className = "product";
-
-  // let newProduct = `<td class="name">
-  //     <span>${newName.value}</span>
-  //   </td>
-  //   <td class="price">$<span>${newPrice.value}</span></td>
-  //   <td class="quantity">
-  //     <input type="number" value="0" min="0" placeholder="Quantity" />
-  //   </td>
-  //   <td class="subtotal">$<span>0</span></td>
-  //   <td class="action">
-  //     <button class="btn btn-remove">Remove</button>
-  //   </td>`;
-
-  // productTable.lastChild.innerHTML = newProduct;
+  productTable.appendChild(newRow);
 
   listenRemove(removeBtn);
-  
+
   //when the new product row is added, clear the input fields
   newName.value = "";
   newPrice.value = "0";
@@ -115,13 +85,12 @@ window.addEventListener("load", () => {
 
 function listenRemove(removeBtn) {
   for (let i = 0; i < removeBtn.length; i++) {
-      removeBtn[i].addEventListener("click", removeProduct);
-    };
+    removeBtn[i].addEventListener("click", removeProduct);
+  }
   console.log("hello");
-};
+}
 
 listenRemove(removeBtn);
-
 
 window.addEventListener("load", () => {
   const createBtn = document.getElementById("create");
